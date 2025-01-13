@@ -1,7 +1,11 @@
+import os
+os.environ["WANDB_DISABLED"] = "true"
+
 import pandas as pd
 from datasets import Dataset
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from sklearn.preprocessing import LabelEncoder
+import joblib 
 
 # Load Dataset
 def load_data(file_path):
@@ -15,6 +19,11 @@ val_df = load_data("data/validation.csv")
 label_encoder = LabelEncoder()
 train_df["label"] = label_encoder.fit_transform(train_df["category"])
 val_df["label"] = label_encoder.transform(val_df["category"])
+
+# Save the LabelEncoder for later use
+if not os.path.exists("models/saved_model"):
+    os.makedirs("models/saved_model")
+joblib.dump(label_encoder, "models/saved_model/label_encoder.pkl")  # Save the LabelEncoder
 
 train_dataset = Dataset.from_pandas(train_df)
 val_dataset = Dataset.from_pandas(val_df)
